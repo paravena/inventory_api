@@ -1,21 +1,11 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_restx import Api
 from dotenv import load_dotenv
 import os
 from app.utils.logging_config import setup_logger
+from app import db, api
 
 # Load environment variables from .env file
 load_dotenv()
-
-db = SQLAlchemy()
-api = Api(
-    title='Inventory API',
-    version='1.0',
-    description='A simple inventory management API',
-    doc='/api/docs',
-    prefix='/api'
-)
 
 
 def create_app(test_config=None):
