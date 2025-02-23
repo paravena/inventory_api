@@ -47,5 +47,11 @@ def init_db(app):
 app = create_app()
 init_db(app)
 
+
+@app.route("/")
+def home():
+    return "Inventory API is running!"
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)
