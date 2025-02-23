@@ -17,6 +17,7 @@ api = Api(
     prefix='/api'
 )
 
+
 def create_app(test_config=None):
     app = Flask(__name__)
 
@@ -35,18 +36,23 @@ def create_app(test_config=None):
     # Import routes
     from app.routes.inventory import inventory_bp, api as inventory_ns
     from app.routes.products import products_bp, api as products_ns
+    from app.routes.store import store_bp, api as store_ns
 
     # Register blueprints and namespaces
-    app.register_blueprint(inventory_bp)
-    app.register_blueprint(products_bp)
-    api.add_namespace(inventory_ns)
-    api.add_namespace(products_ns)
+    app.register_blueprint(inventory_bp, url_prefix='/api/inventory')
+    app.register_blueprint(products_bp, url_prefix='/api/products')
+    app.register_blueprint(store_bp, url_prefix='/api/stores')
+    api.add_namespace(inventory_ns, path='/inventory')
+    api.add_namespace(products_ns, path='/products')
+    api.add_namespace(store_ns, path='/stores')
 
     return app
+
 
 def init_db(app):
     with app.app_context():
         db.create_all()
+
 
 app = create_app()
 init_db(app)

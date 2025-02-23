@@ -6,8 +6,8 @@ from app.main import db
 from app.utils.logging_config import log_endpoint
 import uuid
 
-products_bp = Blueprint('api/products', __name__)
-api = Namespace('api/products', description='Product operations')
+products_bp = Blueprint('products', __name__)
+api = Namespace('products', description='Product operations')
 
 # Define models for swagger documentation
 product_model = api.model('Product', {
@@ -26,7 +26,11 @@ product_list_model = api.model('ProductList', {
     'current_page': fields.Integer
 })
 
-@api.route('/')
+error_model = api.model('Error', {
+    'error': fields.String(required=True, description='Error message')
+})
+
+@api.route('')
 class ProductList(Resource):
     @api.doc('list_products',
              params={
@@ -70,20 +74,22 @@ class ProductList(Resource):
 
     @api.doc('create_product')
     @api.expect(product_model)
-    @api.marshal_with(product_model, code=201)
-    @api.response(400, 'Validation Error')
+    @api.response(201, 'Product created successfully', product_model)
+    @api.response(400, 'Validation Error', error_model)
     @log_endpoint
     def post(self):
         """Create a new product"""
         data = request.get_json()
+        if not data:
+            return {'error': 'No input data provided'}, 400
 
         required_fields = ['name', 'category', 'price', 'sku']
         for field in required_fields:
             if field not in data:
-                api.abort(400, f'Missing required field: {field}')
+                return {'error': f'Missing required field: {field}'}, 400
 
         if Product.query.filter_by(sku=data['sku']).first():
-            api.abort(400, 'SKU already exists')
+            return {'error': 'SKU already exists'}, 400
 
         product = Product(
             id=str(uuid.uuid4()),
@@ -104,27 +110,34 @@ class ProductList(Resource):
 class ProductItem(Resource):
     @api.doc('get_product')
     @api.marshal_with(product_model)
-    @api.response(404, 'Product not found')
+    @api.response(404, 'Product not found', error_model)
     @log_endpoint
     def get(self, id):
         """Get a product by ID"""
-        product = Product.query.get_or_404(id)
+        product = Product.query.get(id)
+        if not product:
+            return {'error': 'Product not found'}, 404
         return product.to_dict()
 
     @api.doc('update_product')
     @api.expect(product_model)
     @api.marshal_with(product_model)
-    @api.response(400, 'Validation Error')
-    @api.response(404, 'Product not found')
+    @api.response(400, 'Validation Error', error_model)
+    @api.response(404, 'Product not found', error_model)
     @log_endpoint
     def put(self, id):
         """Update a product"""
-        product = Product.query.get_or_404(id)
+        product = Product.query.get(id)
+        if not product:
+            return {'error': 'Product not found'}, 404
+
         data = request.get_json()
+        if not data:
+            return {'error': 'No input data provided'}, 400
 
         if 'sku' in data and data['sku'] != product.sku:
             if Product.query.filter_by(sku=data['sku']).first():
-                api.abort(400, 'SKU already exists')
+                return {'error': 'SKU already exists'}, 400
 
         for field in ['name', 'description', 'category', 'price', 'sku']:
             if field in data:
@@ -135,15 +148,17 @@ class ProductItem(Resource):
 
     @api.doc('delete_product')
     @api.response(204, 'Product deleted')
-    @api.response(400, 'Cannot delete product with inventory')
-    @api.response(404, 'Product not found')
+    @api.response(400, 'Cannot delete product with inventory', error_model)
+    @api.response(404, 'Product not found', error_model)
     @log_endpoint
     def delete(self, id):
         """Delete a product"""
-        product = Product.query.get_or_404(id)
+        product = Product.query.get(id)
+        if not product:
+            return {'error': 'Product not found'}, 404
 
         if product.inventory_items:
-            api.abort(400, 'Cannot delete product with existing inventory')
+            return {'error': 'Cannot delete product with existing inventory'}, 400
 
         db.session.delete(product)
         db.session.commit()
