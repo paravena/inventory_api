@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements-test.txt
 COPY . .
 
 # Expose the port the app runs on
-EXPOSE 8000
+EXPOSE ${PORT:-8000}
 
 # Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app.main:app"]
+CMD gunicorn --bind 0.0.0.0:${PORT:-8000} app.main:app
