@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements-test.txt
 COPY . .
 
 # Expose the port the app runs on
-EXPOSE ${PORT:-8000}
+EXPOSE 8000
 
 # Command to run the application
 CMD ["/app/scripts/docker-cmd"]
