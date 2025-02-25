@@ -22,4 +22,6 @@ COPY . .
 EXPOSE ${PORT:-8000}
 
 # Command to run the application
-CMD gunicorn --bind 0.0.0.0:${PORT:-8000} app.main:app
+CMD ["/bin/bash", "-c", "gunicorn run:app.main:app –bind 0.0.0.0:$PORT"]
+
+
