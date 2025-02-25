@@ -53,5 +53,10 @@ def home():
     return "Inventory API is running!"
 
 
+@app.route("/health")
+def health_check():
+    return {"status": "healthy", "message": "Inventory API is running"}
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)
