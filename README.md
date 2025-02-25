@@ -43,7 +43,7 @@ Swagger documentation can be accessed at `http://localhost:3000/api/docs`
 
 ## Deployment to Railway
 
-This application is configured for deployment on Railway. Follow these steps to deploy:
+This application is configured for deployment on Railway as a Dockerized service. Follow these steps to deploy:
 
 1. Create a Railway account and install the Railway CLI
 2. Fork or clone this repository
@@ -52,19 +52,39 @@ This application is configured for deployment on Railway. Follow these steps to 
 5. Configure the following environment variables in Railway:
    ```
    DATABASE_URL - (Railway will automatically set this)
+   POSTGRES_DB=inventory
+   POSTGRES_USER=inventory_user
+   POSTGRES_PASSWORD=your_secure_password
    FLASK_APP=app.main:app
    FLASK_ENV=production
    ```
 6. Deploy your application:
-   - Railway will automatically detect the Python project
-   - It will use the Procfile for deployment configuration
+   - Railway will automatically detect the Dockerfile and build the container
+   - The deployment is configured via railway.toml
    - The database will be automatically configured using Railway's PostgreSQL add-on
 
+### Local Docker Development
+
+To run the application locally using Docker:
+
+1. Make sure Docker and Docker Compose are installed
+2. Create a `.env` file with the required environment variables (see Quick Start section)
+3. Build and start the services:
+   ```bash
+   docker-compose up --build
+   ```
+4. The API will be available at `http://localhost:8000`
+5. (Optional) Seed the database:
+   ```bash
+   docker-compose exec web python db/seed.py
+   ```
+
 ### Important Notes
-- The application will automatically use the `DATABASE_URL` provided by Railway
-- The Procfile is configured to use gunicorn with 4 workers
-- Python 3.9.21 is specified in runtime.txt
+- The application uses Docker for consistent development and production environments
+- The Dockerfile is configured to use Python 3.9.21 and gunicorn
+- Railway automatically handles container orchestration and scaling
 - Make sure all environment variables are properly set in Railway's dashboard
+- The application automatically uses the PORT provided by Railway
 
 ## License
 

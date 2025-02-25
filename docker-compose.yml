@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  web:
+    build: .
+    container_name: inventory-api
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - FLASK_APP=app.main:app
+      - FLASK_ENV=production
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - inventory-network
+
   postgres:
     image: postgres:15
     container_name: inventory-db
