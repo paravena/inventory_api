@@ -67,3 +67,4 @@ This guide will help you deploy the Inventory API to Railway.
 - Railway will automatically handle HTTPS/SSL
 - The application will restart automatically on failure (configured in railway.toml)
 - Database backups are handled automatically by Railway
+- If the PORT environment variable is not set, the application will default to port 8000
