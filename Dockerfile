@@ -22,4 +22,6 @@ COPY . .
 EXPOSE ${PORT:-8000}
 
 # Command to run the application
-CMD ["/bin/bash", "-c", "gunicorn app.main:app --bind 0.0.0.0:${PORT:-8000}"]
+CMD ["/app/scripts/docker-cmd"]
+
+
